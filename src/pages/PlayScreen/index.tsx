@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 
 import {
   BlankElement,
@@ -14,19 +14,23 @@ import {
   Translation,
 } from '@components';
 
-import {data} from './constant';
 import {usePlayScreenAnswer, usePlayScreenMeasures} from './hooks';
+import {useGetDocument, useGetDocumentIds} from './api';
 
 export const PlayScreen = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const documentIds = useGetDocumentIds();
+  const data = useGetDocument(documentIds[activeIndex]);
+
+  const {answerStatus, onButtonPress, onItemPress, selectedAnswer, statusData} =
+    usePlayScreenAnswer(data);
+
   const {
     blankMeasure,
     getBlankMeasure,
     getSelectionMeasures,
     selectionMeasures,
   } = usePlayScreenMeasures(data);
-
-  const {onButtonPress, onItemPress, selectedAnswer, statusData} =
-    usePlayScreenAnswer(data);
 
   const selectionTranslateLayout = useMemo(() => {
     if (selectedAnswer.index !== -1 && blankMeasure) {
@@ -46,6 +50,7 @@ export const PlayScreen = () => {
   const selectionRenderItem = useCallback(
     (label: string, index: number) => {
       const isSelected = label === selectedAnswer.answer;
+      const disable = answerStatus === 'correct' || answerStatus === 'error';
 
       return (
         <React.Fragment key={label}>
@@ -60,11 +65,16 @@ export const PlayScreen = () => {
             onItemPress={onItemPress}
             translateLayout={selectionTranslateLayout}
             buttonColor={
-              isSelected ? statusData.selectionButtonColor : 'white1'
+              isSelected
+                ? statusData.selectionButtonColor
+                : !isSelected && disable
+                ? 'transparent'
+                : 'white1'
             }
             textColor={
               isSelected ? statusData.selectionTextColor : 'background2'
             }
+            disabled={disable}
           />
         </React.Fragment>
       );
@@ -76,6 +86,7 @@ export const PlayScreen = () => {
       selectedAnswer,
       selectionTranslateLayout,
       statusData,
+      answerStatus,
     ],
   );
 
@@ -91,8 +102,16 @@ export const PlayScreen = () => {
         <NormalText key={label} value={label} />
       );
     },
-    [getBlankMeasure, selectionMeasures],
+    [getBlankMeasure, selectionMeasures, data.translation.word],
   );
+
+  const onPress = useCallback(() => {
+    answerStatus === 'correct' &&
+      setActiveIndex(state =>
+        documentIds.length === state ? state : state + 1,
+      );
+    onButtonPress();
+  }, [answerStatus, onButtonPress, documentIds]);
 
   return (
     <Box
@@ -123,13 +142,17 @@ export const PlayScreen = () => {
           buttonColor={statusData.buttonColors}
           disabled={selectedAnswer.answer === ''}
           label={statusData.buttonLabel}
-          onPress={onButtonPress}
+          onPress={onPress}
           textColor={statusData.buttonLabelColor}
         />
         <BottomSheet
           color={statusData.bottomSheetColor}
           display={statusData.showBottomSheet}
-          label="Great Job!"
+          label={
+            answerStatus === 'correct'
+              ? 'Great Job!'
+              : `Answer: ${data.translation.word}`
+          }
         />
       </Box>
     </Box>

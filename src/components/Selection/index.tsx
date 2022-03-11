@@ -45,7 +45,7 @@ export const SelectionItem = ({
   return (
     <Button
       alignItems="center"
-      backgroundColor={disabled ? 'transparent' : buttonColor}
+      backgroundColor={buttonColor}
       borderRadius="round"
       disabled={disabled}
       justifyContent="center"

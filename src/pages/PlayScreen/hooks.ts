@@ -35,6 +35,7 @@ const initialSelected = {answer: '', index: -1};
 export const usePlayScreenAnswer = (data: TranslationData) => {
   const [selectedAnswer, setSelectedAnswer] =
     useState<typeof initialSelected>(initialSelected);
+
   const [answerStatus, setAnswerStatus] =
     useState<keyof AnswerStateType>('idle');
 
@@ -44,19 +45,22 @@ export const usePlayScreenAnswer = (data: TranslationData) => {
   }, []);
 
   const onButtonPress = useCallback(() => {
-    const status: keyof AnswerStateType =
-      selectedAnswer.answer === data.translation.word
-        ? 'correct'
-        : data.translation.word !== selectedAnswer.answer
-        ? 'error'
-        : 'idle';
+    if (answerStatus === 'selected') {
+      const status: keyof AnswerStateType =
+        selectedAnswer.answer === data.translation.word
+          ? 'correct'
+          : data.translation.word !== selectedAnswer.answer
+          ? 'error'
+          : 'idle';
 
-    setAnswerStatus(status);
-  }, [selectedAnswer, data.translation.word]);
+      setAnswerStatus(status);
+    }
+  }, [selectedAnswer, data.translation.word, answerStatus]);
 
   const statusData = useMemo(() => answerState[answerStatus], [answerStatus]);
 
   return {
+    answerStatus,
     onButtonPress,
     onItemPress,
     selectedAnswer,
