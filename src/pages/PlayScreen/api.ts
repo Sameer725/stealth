@@ -10,11 +10,11 @@ export interface DataType {
   translateId: FirebaseFirestoreTypes.CollectionReference<DataType>;
 }
 
-export const useGetDocumentIds = () => {
+export const useGetDocumentIds = (language: 'English' | 'German') => {
   const [documentIds, setDocumentIds] = useState<string[]>([]);
   useEffect(() => {
     const listen = fireStore()
-      .collection('English')
+      .collection(language)
       .onSnapshot(snapShot => {
         let ids: string[] = [];
 
@@ -28,7 +28,7 @@ export const useGetDocumentIds = () => {
     return () => {
       listen();
     };
-  }, []);
+  }, [language]);
 
   return documentIds;
 };
@@ -44,17 +44,21 @@ const initialData: TranslationData = {
   },
 };
 
-export const useGetDocument = (documentId: string) => {
+export const useGetDocument = (
+  documentId: string,
+  language: 'English' | 'German',
+) => {
   const [data, setData] = useState<TranslationData>(initialData);
 
   useEffect(() => {
     const listen = fireStore()
-      .collection('English')
+      .collection(language)
       .doc(documentId)
       .onSnapshot(snapShot => {
         let {translateId, ...translate} = snapShot.data() as DataType;
         translateId.onSnapshot(translationSnapshot => {
           const translation = translationSnapshot.data();
+
           setData({translate, translation});
         });
       });
@@ -62,7 +66,7 @@ export const useGetDocument = (documentId: string) => {
     return () => {
       listen();
     };
-  }, [documentId]);
+  }, [documentId, language]);
 
   return data;
 };

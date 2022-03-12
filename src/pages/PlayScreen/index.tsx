@@ -16,12 +16,14 @@ import {
 
 import {usePlayScreenAnswer, usePlayScreenMeasures} from './hooks';
 import {useGetDocument, useGetDocumentIds} from './api';
+import {TranslationData} from '@types';
 
-export const PlayScreen = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const documentIds = useGetDocumentIds();
-  const data = useGetDocument(documentIds[activeIndex]);
+interface PlayScreenProps {
+  data: TranslationData;
+  fetchNewData(): void;
+}
 
+const PlayScreenComponent = ({data, fetchNewData}: PlayScreenProps) => {
   const {answerStatus, onButtonPress, onItemPress, selectedAnswer, statusData} =
     usePlayScreenAnswer(data);
 
@@ -50,7 +52,7 @@ export const PlayScreen = () => {
   const selectionRenderItem = useCallback(
     (label: string, index: number) => {
       const isSelected = label === selectedAnswer.answer;
-      const disable = answerStatus === 'correct' || answerStatus === 'error';
+      const disable = answerStatus === 'correct';
 
       return (
         <React.Fragment key={label}>
@@ -106,12 +108,11 @@ export const PlayScreen = () => {
   );
 
   const onPress = useCallback(() => {
-    answerStatus === 'correct' &&
-      setActiveIndex(state =>
-        documentIds.length === state ? state : state + 1,
-      );
+    if (answerStatus === 'correct') {
+      fetchNewData();
+    }
     onButtonPress();
-  }, [answerStatus, onButtonPress, documentIds]);
+  }, [answerStatus, onButtonPress, fetchNewData]);
 
   return (
     <Box
@@ -157,4 +158,24 @@ export const PlayScreen = () => {
       </Box>
     </Box>
   );
+};
+
+export const PlayScreen = () => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const language: 'English' | 'German' = 'German';
+  const documentIds = useGetDocumentIds(language);
+  const data = useGetDocument(documentIds[activeIndex], language);
+  const [loading, setLoading] = useState(false);
+
+  const fetNewData = useCallback(() => {
+    setLoading(true);
+    setActiveIndex(state => (state === documentIds.length - 1 ? 0 : state + 1));
+    setTimeout(() => setLoading(false), 100);
+  }, [documentIds]);
+
+  if (loading) {
+    return null;
+  }
+
+  return <PlayScreenComponent data={data} fetchNewData={fetNewData} />;
 };
