@@ -67,7 +67,6 @@ export const SelectionItem = ({
 export const Selection = ({data = [], renderItem}: SelectionProps) => {
   return (
     <Box
-      backgroundColor="background1"
       flexDirection="row"
       flexWrap="wrap"
       marginTop="s10"
