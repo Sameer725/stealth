@@ -1,6 +1,5 @@
 import {ColorProps} from '@shopify/restyle';
 import {Theme} from '@theme';
-import Animated from 'react-native-reanimated';
 
 export interface MeasureType {
   height: number;
@@ -12,8 +11,6 @@ export interface MeasureType {
 }
 
 export type MeasureHandler = (measure: MeasureType) => void;
-
-export type LayoutProps = Animated.SharedValue<MeasureType | null>;
 
 export type Color = ColorProps<Theme>['color'];
 

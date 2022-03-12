@@ -1,6 +1,4 @@
-import {AnswerStateType, TranslationData} from '@types';
-
-const options = ['house', 'hombre', 'ghar', 'home'];
+import {AnswerStateType} from '@types';
 
 export const answerState: AnswerStateType = {
   idle: {
@@ -38,18 +36,5 @@ export const answerState: AnswerStateType = {
     bottomSheetColor: 'success',
     selectionButtonColor: 'success',
     selectionTextColor: 'white1',
-  },
-};
-
-export const data: TranslationData = {
-  translate: {
-    sentence: 'This house is small',
-    word: 'house',
-  },
-
-  translation: {
-    sentence: 'This house is small',
-    word: 'house',
-    options: options,
   },
 };
