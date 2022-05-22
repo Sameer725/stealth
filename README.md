@@ -1,7 +1,5 @@
 # Stealth
 
-Stealth is a RN test project for Stealth Language Learning Startup.
-
 ## Technology
 
 ### FrontEnd
